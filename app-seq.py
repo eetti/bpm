@@ -51,14 +51,6 @@ windowedCounts = df2.groupBy(df2.status, window(
 
 windowedCounts.printSchema()
 
-# query1 = windowedCounts.writeStream \
-#     .outputMode("complete") \
-#     .format("console") \
-#     .option("checkpointLocation", "/var/tmp/temporary-" + str(uuid.uuid4())) \
-#     .start()\
-#     .awaitTermination()
-
-
 def func(status, count):
     if status == None or count == None:
         return "N"

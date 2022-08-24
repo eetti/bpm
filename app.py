@@ -63,12 +63,6 @@ df = spark\
     .load()\
     .selectExpr("CAST(value AS STRING)")
 
-# heartRateSchema = StructType([ \
-#     StructField("bpm", StringType()), \
-#     StructField("time", TimestampType())])
-
-# runningCount = df.groupBy().count()
-# print('Running Count: {}'.format(int(str(runningCount))))
 # This part checks whether the max heart rate is greater than the threshold, then sends the appropriate message as the result
 
 class RowPrinter:
@@ -91,20 +85,13 @@ class RowPrinter:
 
         if (float(row[0]) - threshold) > EPSILON:
             producer = KafkaProducer(bootstrap_servers=['localhost:9092'])
-            # json.dumps({"demo": "message"})
-            # bytes(json.dumps(v, default=str).encode('utf-8')
-            # json.dumps({"message": "AT RISK", "ts":row[1],"bpm":row[0]})
-            # message = "AT RISK,{},{}".format(row[0],row[1])
             messageByte = bytes(json.dumps({"message": "AT RISK", "ts":row[1],"bpm":row[0]}), 'utf-8')
             producer.send(output_topic, messageByte)
 
         else:
             producer = KafkaProducer(bootstrap_servers=['localhost:9092'])
-            # message = "SAFE,{},{}".format(row[0],row[1])
             messageByte = bytes(json.dumps({"message": "SAFE", "ts":row[1],"bpm":row[0]}), 'utf-8')
-            # messageByte = bytes(message, 'utf-8')
             producer.send(output_topic, messageByte)
-            # This part is also left as the default
 
     def close(self, error):
         print("Closed with error: %s" % str(error))
@@ -115,5 +102,3 @@ class RowPrinter:
 df.writeStream.outputMode("append").foreach(
     RowPrinter()).option("truncate", False).start().awaitTermination()
 
-# df.writeStream.format("console").outputMode("complete").option("checkpointLocation", "/mnt/c/users/user/downloads/MLSpark/checkpoint/").start()\
-#       .awaitTermination()
