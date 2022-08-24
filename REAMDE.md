@@ -3,8 +3,13 @@
 The following spark applications ingest a series of health records spacificaly heart beats record evert 0.5 seconds over 15 minutes.
 
 >Source: [MIT Dataset](#)
+### Prequisites
+- Install python, spark and kafka
+- Start Kafka
+- Create 2 topics. In the sample code the topics are called: input, output
 
 ### Usage
+
 1. We need to insert data into the kafka input topic. You would need the filename and the kafka topic name.
 >`python streamer.py data/hr.7257-time.txt input `
 
@@ -13,4 +18,4 @@ The following spark applications ingest a series of health records spacificaly h
 
 3. The second spark app aggregates the data and displays if we should send an alert for a given time period
 
->`../spark-3.0.1-bin-hadoop2.7/bin/spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.0.1 app-seq.py  --output output`
+>`../spark-3.0.1-bin-hadoop2.7/bin/spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.0.1 app-seq.py  --input output`

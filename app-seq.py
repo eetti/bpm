@@ -13,11 +13,14 @@ spark.sparkContext.setLogLevel("ERROR")
 # Taking the 1 topic name as command line arguments
 parser = argparse.ArgumentParser(
     description="The names of the topics to input data from and output data to")
-parser.add_argument("--output", metavar="", required=True,
+parser.add_argument("--input", metavar="", required=True,
+                    help="The topic to input heart rate data from")
+parser.add_argument("--output", metavar="", required=False,
                     help="The topic to output results to")
 args = parser.parse_args()
 
 output_topic = args.output
+input_topic = args.input
 max_occurrence = 5
 
 
@@ -31,7 +34,7 @@ df2 = spark\
     .option("startingOffsets", "earliest")\
     .option("failOnDataLoss", False)\
     .option("kafka.bootstrap.servers", "localhost:9092")\
-    .option("subscribe", output_topic)\
+    .option("subscribe", input_topic)\
     .load()\
     .selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)")\
     .select(from_json(col("value"), heartRateSchema).alias("data"))\
@@ -47,7 +50,7 @@ df2.printSchema()
 # Group count of status occurences in the stream according to the specified interval
 #
 windowedCounts = df2.groupBy(df2.status, window(
-    df2.timestamp, "2.500001 seconds", "2.500001 seconds")).count()
+    df2.timestamp, "2.50000 seconds", "0.50000 seconds")).count()
 
 windowedCounts.printSchema()
 
